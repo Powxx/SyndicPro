@@ -253,8 +253,11 @@ function sumMilli(id){
   return S.lots.reduce((a,l)=>a+(l.milli?.[id]||0),0);
 }
 function sumBudget(){return S.postes.reduce((a,p)=>a+p.mont,0);}
-function cmg(){return S.postes.filter(p=>p.rep==='mg').reduce((a,p)=>a+p.mont,0);}
-function cmc(){return S.postes.filter(p=>p.rep==='mc').reduce((a,p)=>a+p.mont,0);}
+function cmg(){return S.postes.filter(p=>p.rep==='gen').reduce((a,p)=>a+p.mont,0);}
+function cmc(){return S.postes.filter(p=>p.rep==='ch').reduce((a,p)=>a+p.mont,0);}
+function cma(){return S.postes.filter(p=>p.rep==='as').reduce((a,p)=>a+p.mont,0);}
+function cmpa(){return S.postes.filter(p=>p.rep==='pa').reduce((a,p)=>a+p.mont,0);}
+function cmps(){return S.postes.filter(p=>p.rep==='ps').reduce((a,p)=>a+p.mont,0);}
 function solde(){
   const r=S.treso.filter(t=>t.type==='recette'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
   const d=S.treso.filter(t=>t.type==='dépense'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
