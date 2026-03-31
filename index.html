@@ -178,6 +178,13 @@ const DEFAULTS = {
     milli:10000,
     annee:new Date().getFullYear()
   },
+  milles:[
+  {id:'gen',nom:'Millièmes généraux'},
+  {id:'ch',nom:'Charges communes'},
+  {id:'as',nom:'Charges Ascenseur'},
+  {id:'ps',nom:'Charges parking'},
+  {id:'pa',nom:'Charges Particulière'},
+],
   lots:[],
   cats:['Entretien','Équipements','Assurances','Administration','Eau','Travaux','Divers'],
   postes:[],
@@ -242,8 +249,9 @@ function eur(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:
 function uid(){ S.nid++; return S.nid; }
 function v(id){const e=document.getElementById(id);return e?e.value:'';}
 function today(){return new Date().toISOString().split('T')[0];}
-function sumMG(){return S.lots.reduce((a,l)=>a+l.mg,0);}
-function sumMC(){return S.lots.reduce((a,l)=>a+l.mc,0);}
+function sumMilli(id){
+  return S.lots.reduce((a,l)=>a+(l.milli?.[id]||0),0);
+}
 function sumBudget(){return S.postes.reduce((a,p)=>a+p.mont,0);}
 function cmg(){return S.postes.filter(p=>p.rep==='mg').reduce((a,p)=>a+p.mont,0);}
 function cmc(){return S.postes.filter(p=>p.rep==='mc').reduce((a,p)=>a+p.mont,0);}
@@ -415,8 +423,12 @@ function mAddLot(){
       <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option>Appartement</option><option>Parking</option><option>Cave</option><option>Local</option><option>Autre</option></select></div>
       <div class="fg"><label class="fl">Superficie (m²)</label><input class="fc" id="m-surf" type="number" placeholder="0"></div>
       <div class="fg"><label class="fl">Étage (0=RDC, -1=SS)</label><input class="fc" id="m-etage" type="number" value="1"></div>
-      <div class="fg"><label class="fl">Millièmes généraux</label><input class="fc" id="m-mg" type="number" placeholder="0"></div>
-      <div class="fg"><label class="fl">Millièmes charges</label><input class="fc" id="m-mc" type="number" placeholder="0"></div>
+      ${S.milles.map(m=>`
+      <div class="fg">
+      <label class="fl">${m.nom}</label>
+      <input class="fc" id="m-${m.id}" type="number" value="0">
+      </div>
+      `).join('')}
     </div>
     <div class="fg"><label class="fl">Propriétaire</label><input class="fc" id="m-prop" placeholder="Nom Prénom"></div>
     <div class="g2">
@@ -426,7 +438,7 @@ function mAddLot(){
     <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveLot()">Enregistrer</button></div>`);
 }
 function saveLot(){
-  S.lots.push({id:uid(),num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),mg:+v('m-mg'),mc:+v('m-mc'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
+  S.lots.push({id:uid(),num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),gen:+v('m-gen'),ch:+v('m-ch'),as:+v('m-as'),ps:+v('m-ps'),pa:+v('m-pa'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
   saveData();closeM();toast('✅ Lot ajouté');go('lots');
 }
 function mEditLot(id){
@@ -439,8 +451,12 @@ function mEditLot(id){
       </select></div>
       <div class="fg"><label class="fl">Superficie (m²)</label><input class="fc" id="m-surf" type="number" value="${l.surf}"></div>
       <div class="fg"><label class="fl">Étage</label><input class="fc" id="m-etage" type="number" value="${l.etage}"></div>
-      <div class="fg"><label class="fl">Millièmes généraux</label><input class="fc" id="m-mg" type="number" value="${l.mg}"></div>
-      <div class="fg"><label class="fl">Millièmes charges</label><input class="fc" id="m-mc" type="number" value="${l.mc}"></div>
+      ${S.milles.map(m=>`
+      <div class="fg">
+      <label class="fl">${m.nom}</label>
+      <input class="fc" id="m-${m.id}" type="number" value="${l.milli?.[m.id]||0}">
+      </div>
+      `).join('')}
     </div>
     <div class="fg"><label class="fl">Propriétaire</label><input class="fc" id="m-prop" value="${esc(l.prop)}"></div>
     <div class="g2">
@@ -451,7 +467,7 @@ function mEditLot(id){
 }
 function updateLot(id){
   const l=S.lots.find(x=>x.id===id);
-  Object.assign(l,{num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),mg:+v('m-mg'),mc:+v('m-mc'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
+  Object.assign(l,{num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),gen:+v('m-gen'),ch:+v('m-ch'),as:+v('m-as'),ps:+v('m-ps'),pa:+v('m-pa'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
   saveData();closeM();toast('✅ Lot modifié');go('lots');
 }
 function delLot(id){
@@ -497,7 +513,6 @@ function pgBudget(){
   document.getElementById('main').innerHTML=`
     <div class="sa">
       <button class="btn pb" onclick="mAddPoste()">+ Poste</button>
-      <button class="btn po" onclick="mAddCat()">+ Catégorie</button>
       <button class="btn gb" onclick="window.print()">🖨️ Imprimer</button>
     </div>
     <div class="g2">
@@ -534,7 +549,9 @@ function mAddPoste(){
     <div class="fg"><label class="fl">Catégorie</label><select class="fc" id="m-cat"><option>Entretien</option><option>Équipements</option><option>Assurances</option><option>Administration</option><option>Eau</option><option>Travaux</option><option>Divers</option></select></div>
     <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" placeholder="Description du poste"></div>
     <div class="fg"><label class="fl">Montant annuel (€)</label><input class="fc" id="m-mont" type="number" placeholder="0"></div>
-    <div class="fg"><label class="fl">Répartition</label><select class="fc" id="m-rep"><option value="mg">Millièmes généraux</option><option value="mc">Millièmes de charges</option></select></div>
+    <div class="fg"><label class="fl">Répartition</label><select class="fc" id="m-rep">${S.milles.map(m=>`
+<option value="${m.id}">${m.nom}</option>
+`).join('')}</select></div>
     <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="savePoste()">Enregistrer</button></div>`);
 }
 function savePoste(){
@@ -586,6 +603,7 @@ function saveCat(){
   closeM();
   toast('✅ Catégorie ajoutée');
 }
+
 
 function delCat(name){
   if(!confirm("Supprimer la catégorie ?")) return;
