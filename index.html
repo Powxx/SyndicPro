@@ -403,7 +403,7 @@ function pgLots(){
     ${!S.lots.length?`<div class="alert ai">Aucun lot enregistré. Cliquez "+ Lot" pour commencer.</div>`:`
     <div class="card">
       <div class="tw"><table>
-        <thead><tr><th>Lot</th><th>Type</th><th>Surf.</th><th>Ét.</th><th>M.gén.</th><th>M.ch.</th><th>Propriétaire</th><th></th></tr></thead>
+        <thead><tr><th>Lot</th><th>Type</th><th>Surf.</th><th>Ét.</th><th>M.gén.</th><th>M.ch.</th><th>M.asc.</th><th>M.park.</th><th>M.part.</th><th>Propriétaire</th><th></th></tr></thead>
         <tbody>${S.lots.map(l=>`<tr>
           <td><span class="ml">${l.num}</span></td>
           <td><span class="badge ${l.type==='Appartement'?'bb':l.type==='Parking'?'bpp':'bo'}">${l.type}</span></td>
