@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SyndicPro</title>
+<style>
+:root {
+  --bg:#0f1117; --surface:#171b26; --surface2:#1e2433; --surface3:#252c3d;
+  --border:#2d3548; --accent:#4f8ef7; --gold:#c9a84c;
+  --green:#2ecc71; --red:#e74c3c; --orange:#f39c12;
+  --text:#e8eaf0; --text2:#8892a4; --text3:#5a6478;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);}
+body{display:flex;flex-direction:column;}
+
+#topbar{position:fixed;top:0;left:0;right:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 14px;gap:10px;}
+#topbar-logo{font-size:17px;font-weight:800;color:var(--gold);white-space:nowrap;}
+#topbar-page{flex:1;font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#menu-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 13px;font-size:18px;cursor:pointer;flex-shrink:0;}
+
+#layout{display:flex;flex:1;margin-top:52px;margin-bottom:60px;}
+#sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;height:calc(100vh - 52px);position:sticky;top:52px;display:none;}
+.nav-sec{padding:10px 14px 3px;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;user-select:none;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(79,142,247,.1);}
+
+#main{flex:1;overflow-y:auto;padding:14px;}
+
+#botnav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--surface);border-top:1px solid var(--border);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px;}
+#botnav::-webkit-scrollbar{display:none;}
+.bn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:9px;color:var(--text3);min-width:52px;border:none;background:transparent;user-select:none;}
+.bn .bi{font-size:20px;line-height:1.3;}
+.bn.active{color:var(--accent);}
+.bn:active{opacity:.6;}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;}
+#overlay.open{display:block;}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:268px;z-index:60;background:var(--surface);overflow-y:auto;transform:translateX(100%);transition:transform .22s ease;border-left:1px solid var(--border);}
+#drawer.open{transform:translateX(0);}
+.dr-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.dr-close{background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;padding:4px 8px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.card-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:10px;}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);}
+.kpi-value{font-size:22px;font-weight:700;margin-top:4px;}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.kv-g{color:var(--green);} .kv-r{color:var(--red);} .kv-o{color:var(--gold);} .kv-b{color:var(--accent);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.tw{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-top:8px;}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:460px;}
+th{background:var(--surface2);padding:8px 11px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border);}
+td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text2);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;}
+.bg{background:rgba(46,204,113,.15);color:var(--green);}
+.br{background:rgba(231,76,60,.15);color:var(--red);}
+.bo{background:rgba(243,156,18,.15);color:var(--orange);}
+.bb{background:rgba(79,142,247,.15);color:var(--accent);}
+.bpp{background:rgba(124,92,191,.15);color:#9b7de0;}
+
+.fg{margin-bottom:11px;}
+.fl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);margin-bottom:4px;}
+.fc{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:15px;font-family:inherit;outline:none;}
+.fc:focus{border-color:var(--accent);}
+textarea.fc{resize:vertical;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;min-height:40px;user-select:none;}
+.btn:active{opacity:.7;}
+.pb{background:var(--accent);color:#fff;}
+.sb{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+.gb{background:var(--gold);color:#000;}
+.db{background:var(--red);color:#fff;}
+.eb{background:var(--surface3);color:var(--text);border:1px solid var(--border);}
+.sm{padding:6px 11px;font-size:12px;min-height:34px;}
+.sa{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+
+#mwrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:80;align-items:flex-end;justify-content:center;}
+#mwrap.open{display:flex;}
+#mbox{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:18px 15px;width:100%;max-width:560px;max-height:86vh;overflow-y:auto;}
+.mt{font-size:17px;font-weight:700;color:var(--gold);margin-bottom:14px;}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:11px;border-top:1px solid var(--border);}
+
+.alert{padding:11px 13px;border-radius:8px;font-size:13px;margin-bottom:10px;line-height:1.4;}
+.aw{background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.3);color:var(--orange);}
+.ai{background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);color:var(--accent);}
+.as{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);}
+.ad{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--red);}
+
+.sep{height:1px;background:var(--border);margin:11px 0;}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.bet{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.ml{display:inline-block;padding:1px 6px;background:var(--surface3);border-radius:4px;color:var(--gold);font-size:11px;font-weight:600;}
+
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:90;display:none;pointer-events:none;}
+.ti{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 17px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;}
+
+.act-btns{display:flex;gap:4px;}
+
+@media(min-width:700px){
+  #layout{margin-bottom:0;}
+  #sidebar{display:block;}
+  #botnav{display:none;}
+  #menu-btn{display:none;}
+  #mbox{border-radius:12px;margin:auto;}
+  #mwrap{align-items:center;}
+  #main{padding:20px 22px;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="topbar-logo">SyndicPro</div>
+  <div id="topbar-page">Tableau de bord</div>
+  <button id="menu-btn" onclick="toggleDr()">☰</button>
+</div>
+
+<div id="overlay" onclick="toggleDr()"></div>
+<div id="drawer">
+  <div class="dr-head">
+    <span style="color:var(--gold);font-weight:700">Menu</span>
+    <button class="dr-close" onclick="toggleDr()">✕</button>
+  </div>
+  <div id="dr-nav"></div>
+</div>
+
+<div id="layout">
+  <div id="sidebar"><div id="sb-nav"></div></div>
+  <div id="main"></div>
+</div>
+
+<nav id="botnav"></nav>
+<div id="mwrap" onclick="bgClose(event)"><div id="mbox"></div></div>
+<div id="toast"><div class="ti" id="tmsg"></div></div>
+
+<script type="module">
+// ══════════════════════════════════════════
+//  DATA — MODIFIEZ CES VALEURS POUR VOTRE RÉSIDENCE
+// ══════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const _app = initializeApp({
+  apiKey: "AIzaSyCEorAKbtrp3NNjpRB28Wmik5GI8RmE7Hk",
+  authDomain: "syndicpro-ee271.firebaseapp.com",
+  projectId: "syndicpro-ee271",
+  storageBucket: "syndicpro-ee271.firebasestorage.app",
+  messagingSenderId: "894224824604",
+  appId: "1:894224824604:web:0dd85535398907226fe2d9"
+});
+const _db = getFirestore(_app);
+const _DOC = doc(_db, 'syndicpro', 'data');
+let _saving = false;
+
+const DEFAULTS = {
+  imm:{
+    nom:"Nom de votre résidence",
+    adr:"Adresse complète, Code postal Ville",
+    siret:"",
+    banque:"",
+    iban:"",
+    milli:10000,
+    annee:new Date().getFullYear()
+  },
+  lots:[],
+  postes:[],
+  treso:[],
+  ags:[],
+  votes:[],
+  incidents:[],
+  fourns:[],
+  contrats:[],
+  travaux:[],
+  docs:[],
+  nid:100
+};
+
+// ── PERSISTENCE localStorage ──
+async function loadData(){
+  try {
+    const snap = await getDoc(_DOC);
+    if(snap.exists()) return snap.data();
+  } catch(e){ console.warn('Firebase indisponible', e); }
+  return JSON.parse(JSON.stringify(DEFAULTS));
+}
+async function saveData(){
+  if(_saving) return;
+  _saving = true;
+  try { await setDoc(_DOC, S); }
+  catch(e){ toast('⚠️ Erreur sauvegarde cloud'); }
+  finally { _saving = false; }
+}
+function resetData(){
+  if(confirm('⚠️ Effacer TOUTES les données ?')){
+    Object.assign(S, JSON.parse(JSON.stringify(DEFAULTS)));
+    saveData().then(()=>location.reload());
+  }
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='syndicpro_sauvegarde_'+today()+'.json';a.click();
+  toast('✅ Sauvegarde exportée');
+}
+function importData(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        Object.assign(S,d);saveData();toast('✅ Données importées');go(CUR);
+      }catch{toast('❌ Fichier invalide');}
+    };r.readAsText(f);
+  };input.click();
+}
+
+let S = JSON.parse(JSON.stringify(DEFAULTS));
+document.getElementById('main').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2)">⏳ Chargement...</div>';
+
+// ── HELPERS ──
+function eur(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(n||0);}
+function uid(){ S.nid++; return S.nid; }
+function v(id){const e=document.getElementById(id);return e?e.value:'';}
+function today(){return new Date().toISOString().split('T')[0];}
+function sumMG(){return S.lots.reduce((a,l)=>a+l.mg,0);}
+function sumMC(){return S.lots.reduce((a,l)=>a+l.mc,0);}
+function sumBudget(){return S.postes.reduce((a,p)=>a+p.mont,0);}
+function cmg(){return S.postes.filter(p=>p.rep==='mg').reduce((a,p)=>a+p.mont,0);}
+function cmc(){return S.postes.filter(p=>p.rep==='mc').reduce((a,p)=>a+p.mont,0);}
+function solde(){
+  const r=S.treso.filter(t=>t.type==='recette'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
+  const d=S.treso.filter(t=>t.type==='dépense'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
+  return r-d;
+}
+function impayes(){return S.treso.filter(t=>t.type==='recette'&&t.stat==='en attente').reduce((a,t)=>a+t.mont,0);}
+function etage(e){return e===0?'RDC':e<0?'Sous-sol':e+'e';}
+function esc(s){return String(s||'').replace(/'/g,"\\'")}
+
+// ── NAV ──
+const MENU=[
+  {id:'home',ico:'🏛️',lab:'Accueil',sec:''},
+  {id:'lots',ico:'🏢',lab:'Lots',sec:'Copropriété'},
+  {id:'copros',ico:'👥',lab:'Copropriétaires',sec:''},
+  {id:'fourns',ico:'🔧',lab:'Fournisseurs',sec:''},
+  {id:'budget',ico:'📊',lab:'Budget',sec:'Comptabilité'},
+  {id:'charges',ico:'📋',lab:'Répartition',sec:''},
+  {id:'treso',ico:'💶',lab:'Trésorerie',sec:''},
+  {id:'appels',ico:'📨',lab:'Appels fonds',sec:''},
+  {id:'impayes',ico:'⚠️',lab:'Impayés',sec:''},
+  {id:'ag',ico:'🗳️',lab:'AG',sec:'Assemblée Générale'},
+  {id:'pv',ico:'📄',lab:'PV',sec:''},
+  {id:'votes',ico:'✅',lab:'Votes',sec:''},
+  {id:'travaux',ico:'🔨',lab:'Travaux',sec:'Gestion'},
+  {id:'docs',ico:'🗂️',lab:'Documents',sec:''},
+  {id:'contrats',ico:'📝',lab:'Contrats',sec:''},
+  {id:'incidents',ico:'🚨',lab:'Incidents',sec:''},
+  {id:'immeuble',ico:'⚙️',lab:'Paramètres',sec:''},
+];
+const BN_IDS=['home','lots','budget','treso','impayes','ag','incidents'];
+let CUR='';
+
+function buildNav(){
+  const mkItem=(m,pfx)=>`<div class="nav-item" id="${pfx}${m.id}" onclick="go('${m.id}')">${m.ico} ${m.lab}</div>`;
+  ['sb-nav','dr-nav'].forEach(nid=>{
+    let h='';
+    MENU.forEach(m=>{if(m.sec)h+=`<div class="nav-sec">${m.sec}</div>`;h+=mkItem(m,nid+'-');});
+    document.getElementById(nid).innerHTML=h;
+  });
+  document.getElementById('botnav').innerHTML=BN_IDS.map(id=>{
+    const m=MENU.find(x=>x.id===id);
+    return `<button class="bn" id="bn-${id}" onclick="go('${id}')"><span class="bi">${m.ico}</span>${m.lab}</button>`;
+  }).join('');
+}
+
+function go(page){
+  CUR=page;
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  ['sb-nav','dr-nav'].forEach(n=>{const e=document.getElementById(n+'-'+page);if(e)e.classList.add('active');});
+  document.querySelectorAll('.bn').forEach(e=>e.classList.remove('active'));
+  const bn=document.getElementById('bn-'+page);if(bn)bn.classList.add('active');
+  const m=MENU.find(x=>x.id===page);
+  document.getElementById('topbar-page').textContent=m?m.ico+' '+m.lab:'';
+  const fns={home:pgHome,lots:pgLots,copros:pgCopros,fourns:pgFourns,budget:pgBudget,
+    charges:pgCharges,treso:pgTreso,appels:pgAppels,impayes:pgImpayes,
+    ag:pgAG,pv:pgPV,votes:pgVotes,travaux:pgTravaux,docs:pgDocs,
+    contrats:pgContrats,incidents:pgIncidents,immeuble:pgImmeuble};
+  document.getElementById('main').innerHTML='';
+  if(fns[page])fns[page]();
+  closeDr();
+  document.getElementById('main').scrollTop=0;
+}
+
+function toggleDr(){
+  document.getElementById('drawer').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeDr(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+function openM(h){document.getElementById('mbox').innerHTML=h;document.getElementById('mwrap').classList.add('open');}
+function closeM(){document.getElementById('mwrap').classList.remove('open');}
+function bgClose(e){if(e.target===document.getElementById('mwrap'))closeM();}
+let TT;
+function toast(msg){
+  clearTimeout(TT);
+  document.getElementById('tmsg').textContent=msg;
+  document.getElementById('toast').style.display='block';
+  TT=setTimeout(()=>document.getElementById('toast').style.display='none',2600);
+}
+
+// ══════════════════════════════════════════
+//  PAGE ACCUEIL
+// ══════════════════════════════════════════
+function pgHome(){
+  const sd=solde(),imp=impayes(),bt=sumBudget();
+  const ag=S.ags.find(a=>a.stat==='planifiée');
+  const al=S.contrats.filter(c=>c.alerte);
+  const ouv=S.incidents.filter(i=>i.stat==='ouvert');
+  document.getElementById('main').innerHTML=`
+    <div style="margin-bottom:10px;font-size:13px;color:var(--text3)">📌 ${S.imm.nom}</div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-label">Solde trésorerie</div><div class="kpi-value ${sd>=0?'kv-g':'kv-r'}">${eur(sd)}</div></div>
+      <div class="kpi"><div class="kpi-label">Budget ${S.imm.annee}</div><div class="kpi-value kv-o">${eur(bt)}</div></div>
+      <div class="kpi"><div class="kpi-label">Impayés</div><div class="kpi-value ${imp>0?'kv-r':'kv-g'}">${eur(imp)}</div></div>
+      <div class="kpi"><div class="kpi-label">Prochaine AG</div><div class="kpi-value kv-b" style="font-size:16px">${ag?ag.date.split('-').reverse().join('/'):'—'}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Alertes</div>
+      ${al.map(c=>`<div class="alert aw">⚠️ Contrat "${c.type}" à renouveler</div>`).join('')}
+      ${ouv.length?`<div class="alert ad">🚨 ${ouv.length} incident(s) ouvert(s)</div>`:''}
+      ${S.travaux.some(t=>t.urgence)?`<div class="alert ad">⚡ Travaux urgents en cours</div>`:''}
+      ${!al.length&&!ouv.length&&!S.travaux.some(t=>t.urgence)?`<div class="alert as">✅ Aucune alerte critique</div>`:''}
+    </div>
+    ${S.treso.length?`<div class="card">
+      <div class="card-title">Dernières opérations</div>
+      ${[...S.treso].reverse().slice(0,6).map(t=>`
+        <div class="bet" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:13px">${t.lib}</div><div style="font-size:10px;color:var(--text3)">${t.date}</div></div>
+          <div style="font-weight:700;color:${t.type==='recette'?'var(--green)':'var(--red)'}">
+            ${t.type==='recette'?'+':'−'}${eur(t.mont)}</div>
+        </div>`).join('')}
+    </div>`:''}
+    <div class="card">
+      <div class="g2">
+        <div><div style="font-size:28px;font-weight:700;color:var(--accent)">${S.lots.length}</div><div style="font-size:11px;color:var(--text3)">Lots</div></div>
+        <div><div style="font-size:26px;font-weight:700;color:var(--gold)">${sumMG().toLocaleString('fr')}</div><div style="font-size:11px;color:var(--text3)">Millièmes totaux</div></div>
+      </div>
+      <div class="sep"></div>
+      <div style="font-size:12px;color:var(--text2)">${S.imm.adr}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Gestion des données</div>
+      <div class="row">
+        <button class="btn sb sm" onclick="exportData()">💾 Exporter JSON</button>
+        <button class="btn sb sm" onclick="importData()">📂 Importer JSON</button>
+        <button class="btn db sm" onclick="resetData()">🗑 Réinitialiser</button>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+//  LOTS
+// ══════════════════════════════════════════
+function pgLots(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddLot()">+ Lot</button></div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-label">Total lots</div><div class="kpi-value kv-b">${S.lots.length}</div></div>
+      <div class="kpi"><div class="kpi-label">Millièmes généraux</div><div class="kpi-value kv-o" style="font-size:17px">${sumMG().toLocaleString('fr')} / ${S.imm.milli.toLocaleString('fr')}</div></div>
+    </div>
+    ${!S.lots.length?`<div class="alert ai">Aucun lot enregistré. Cliquez "+ Lot" pour commencer.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Lot</th><th>Type</th><th>Surf.</th><th>Ét.</th><th>M.gén.</th><th>M.ch.</th><th>Propriétaire</th><th></th></tr></thead>
+        <tbody>${S.lots.map(l=>`<tr>
+          <td><span class="ml">${l.num}</span></td>
+          <td><span class="badge ${l.type==='Appartement'?'bb':l.type==='Parking'?'bpp':'bo'}">${l.type}</span></td>
+          <td>${l.surf}m²</td><td>${etage(l.etage)}</td>
+          <td style="color:var(--gold)">${l.mg}</td><td>${l.mc}</td>
+          <td style="font-size:12px">${l.prop}</td>
+          <td><div class="act-btns">
+            <button class="btn eb sm" onclick="mEditLot(${l.id})" title="Modifier">✏️</button>
+            <button class="btn db sm" onclick="delLot(${l.id})" title="Supprimer">🗑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddLot(){
+  openM(`<div class="mt">Ajouter un lot</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">N° Lot</label><input class="fc" id="m-num" placeholder="A01"></div>
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option>Appartement</option><option>Parking</option><option>Cave</option><option>Local</option><option>Autre</option></select></div>
+      <div class="fg"><label class="fl">Superficie (m²)</label><input class="fc" id="m-surf" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Étage (0=RDC, -1=SS)</label><input class="fc" id="m-etage" type="number" value="1"></div>
+      <div class="fg"><label class="fl">Millièmes généraux</label><input class="fc" id="m-mg" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Millièmes charges</label><input class="fc" id="m-mc" type="number" placeholder="0"></div>
+    </div>
+    <div class="fg"><label class="fl">Propriétaire</label><input class="fc" id="m-prop" placeholder="Nom Prénom"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Email</label><input class="fc" id="m-email" type="email" placeholder="email@exemple.fr"></div>
+      <div class="fg"><label class="fl">Téléphone</label><input class="fc" id="m-tel" placeholder="06 XX XX XX XX"></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveLot()">Enregistrer</button></div>`);
+}
+function saveLot(){
+  S.lots.push({id:uid(),num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),mg:+v('m-mg'),mc:+v('m-mc'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
+  saveData();closeM();toast('✅ Lot ajouté');go('lots');
+}
+function mEditLot(id){
+  const l=S.lots.find(x=>x.id===id);
+  openM(`<div class="mt">Modifier le lot ${l.num}</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">N° Lot</label><input class="fc" id="m-num" value="${esc(l.num)}"></div>
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type">
+        ${['Appartement','Parking','Cave','Local','Autre'].map(t=>`<option${t===l.type?' selected':''}>${t}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label class="fl">Superficie (m²)</label><input class="fc" id="m-surf" type="number" value="${l.surf}"></div>
+      <div class="fg"><label class="fl">Étage</label><input class="fc" id="m-etage" type="number" value="${l.etage}"></div>
+      <div class="fg"><label class="fl">Millièmes généraux</label><input class="fc" id="m-mg" type="number" value="${l.mg}"></div>
+      <div class="fg"><label class="fl">Millièmes charges</label><input class="fc" id="m-mc" type="number" value="${l.mc}"></div>
+    </div>
+    <div class="fg"><label class="fl">Propriétaire</label><input class="fc" id="m-prop" value="${esc(l.prop)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Email</label><input class="fc" id="m-email" type="email" value="${esc(l.email)}"></div>
+      <div class="fg"><label class="fl">Téléphone</label><input class="fc" id="m-tel" value="${esc(l.tel)}"></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateLot(${id})">Enregistrer</button></div>`);
+}
+function updateLot(id){
+  const l=S.lots.find(x=>x.id===id);
+  Object.assign(l,{num:v('m-num'),type:v('m-type'),surf:+v('m-surf'),etage:+v('m-etage'),mg:+v('m-mg'),mc:+v('m-mc'),prop:v('m-prop'),email:v('m-email'),tel:v('m-tel')});
+  saveData();closeM();toast('✅ Lot modifié');go('lots');
+}
+function delLot(id){
+  const l=S.lots.find(x=>x.id===id);
+  if(confirm(`Supprimer le lot ${l.num} (${l.prop}) ?`)){
+    S.lots=S.lots.filter(x=>x.id!==id);saveData();toast('🗑 Lot supprimé');go('lots');
+  }
+}
+
+// ══════════════════════════════════════════
+//  COPROPRIÉTAIRES
+// ══════════════════════════════════════════
+function pgCopros(){
+  const map={};
+  S.lots.forEach(l=>{
+    if(!map[l.prop])map[l.prop]={nom:l.prop,email:l.email,tel:l.tel,lots:[],mg:0};
+    map[l.prop].lots.push(l.num);map[l.prop].mg+=l.mg;
+  });
+  const list=Object.values(map);
+  document.getElementById('main').innerHTML=`
+    <div class="alert ai">💡 Les copropriétaires sont déduits des lots. Modifiez un lot pour changer ses infos.</div>
+    ${!list.length?`<div class="alert ai">Aucun copropriétaire. Ajoutez des lots d'abord.</div>`:`
+    <div class="card">
+      <div class="card-title">${list.length} copropriétaire(s)</div>
+      <div class="tw"><table>
+        <thead><tr><th>Nom</th><th>Lots</th><th>Millièmes</th><th>% voix</th><th>Contact</th></tr></thead>
+        <tbody>${list.map(p=>`<tr>
+          <td style="font-weight:600">${p.nom}</td>
+          <td>${p.lots.map(l=>`<span class="ml" style="margin-right:2px">${l}</span>`).join('')}</td>
+          <td style="color:var(--gold)">${p.mg.toLocaleString('fr')}</td>
+          <td>${S.imm.milli>0?(p.mg/S.imm.milli*100).toFixed(2)+'%':'—'}</td>
+          <td style="font-size:11px">${p.email}<br>${p.tel}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+// ══════════════════════════════════════════
+//  BUDGET
+// ══════════════════════════════════════════
+function pgBudget(){
+  const tot=sumBudget();
+  document.getElementById('main').innerHTML=`
+    <div class="sa">
+      <button class="btn pb" onclick="mAddPoste()">+ Poste</button>
+      <button class="btn gb" onclick="window.print()">🖨️ Imprimer</button>
+    </div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-label">Total budget</div><div class="kpi-value kv-o">${eur(tot)}</div></div>
+      <div class="kpi"><div class="kpi-label">Exercice</div><div class="kpi-value kv-b">${S.imm.annee}</div></div>
+    </div>
+    ${!S.postes.length?`<div class="alert ai">Aucun poste budgétaire. Cliquez "+ Poste" pour commencer.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Catégorie</th><th>Libellé</th><th>Montant</th><th>Répartition</th><th>%</th><th></th></tr></thead>
+        <tbody>
+          ${S.postes.map(p=>`<tr>
+            <td>${p.cat}</td><td>${p.lib}</td>
+            <td style="font-weight:600">${eur(p.mont)}</td>
+            <td><span class="badge ${p.rep==='mg'?'bb':'bpp'}">${p.rep==='mg'?'Mll. généraux':'Mll. charges'}</span></td>
+            <td>${tot>0?(p.mont/tot*100).toFixed(1)+'%':'—'}</td>
+            <td><div class="act-btns">
+              <button class="btn eb sm" onclick="mEditPoste(${p.id})">✏️</button>
+              <button class="btn db sm" onclick="delPoste(${p.id})">🗑</button>
+            </div></td>
+          </tr>`).join('')}
+          <tr style="background:var(--surface2)">
+            <td colspan="2" style="font-weight:700">TOTAL</td>
+            <td style="font-weight:700;color:var(--gold)">${eur(tot)}</td>
+            <td colspan="3"></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddPoste(){
+  openM(`<div class="mt">Ajouter un poste budgétaire</div>
+    <div class="fg"><label class="fl">Catégorie</label><select class="fc" id="m-cat"><option>Entretien</option><option>Équipements</option><option>Assurances</option><option>Administration</option><option>Eau</option><option>Travaux</option><option>Divers</option></select></div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" placeholder="Description du poste"></div>
+    <div class="fg"><label class="fl">Montant annuel (€)</label><input class="fc" id="m-mont" type="number" placeholder="0"></div>
+    <div class="fg"><label class="fl">Répartition</label><select class="fc" id="m-rep"><option value="mg">Millièmes généraux</option><option value="mc">Millièmes de charges</option></select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="savePoste()">Enregistrer</button></div>`);
+}
+function savePoste(){
+  S.postes.push({id:uid(),cat:v('m-cat'),lib:v('m-lib'),mont:+v('m-mont'),rep:v('m-rep')});
+  saveData();closeM();toast('✅ Poste ajouté');go('budget');
+}
+function mEditPoste(id){
+  const p=S.postes.find(x=>x.id===id);
+  const cats=['Entretien','Équipements','Assurances','Administration','Eau','Travaux','Divers'];
+  openM(`<div class="mt">Modifier le poste</div>
+    <div class="fg"><label class="fl">Catégorie</label><select class="fc" id="m-cat">
+      ${cats.map(c=>`<option${c===p.cat?' selected':''}>${c}</option>`).join('')}
+    </select></div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" value="${esc(p.lib)}"></div>
+    <div class="fg"><label class="fl">Montant (€)</label><input class="fc" id="m-mont" type="number" value="${p.mont}"></div>
+    <div class="fg"><label class="fl">Répartition</label><select class="fc" id="m-rep">
+      <option value="mg"${p.rep==='mg'?' selected':''}>Millièmes généraux</option>
+      <option value="mc"${p.rep==='mc'?' selected':''}>Millièmes de charges</option>
+    </select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updatePoste(${id})">Enregistrer</button></div>`);
+}
+function updatePoste(id){
+  const p=S.postes.find(x=>x.id===id);
+  Object.assign(p,{cat:v('m-cat'),lib:v('m-lib'),mont:+v('m-mont'),rep:v('m-rep')});
+  saveData();closeM();toast('✅ Poste modifié');go('budget');
+}
+function delPoste(id){
+  if(confirm('Supprimer ce poste ?')){S.postes=S.postes.filter(p=>p.id!==id);saveData();toast('🗑 Supprimé');go('budget');}
+}
+
+// ══════════════════════════════════════════
+//  RÉPARTITION DES CHARGES
+// ══════════════════════════════════════════
+function pgCharges(){
+  const tmg=sumMG(),tmc=sumMC(),CG=cmg(),CC=cmc();
+  document.getElementById('main').innerHTML=`
+    <div class="alert ai">Répartition au millième. Base générale : <strong>${tmg}</strong> — Base charges : <strong>${tmc}</strong></div>
+    <div class="sa"><button class="btn gb" onclick="window.print()">🖨️ Imprimer</button></div>
+    ${!S.lots.length?`<div class="alert ai">Aucun lot enregistré.</div>`:`
+    <div class="card">
+      <div class="card-title">Charges annuelles par lot — ${S.imm.annee}</div>
+      <div class="tw"><table>
+        <thead><tr><th>Lot</th><th>Propriétaire</th><th>Ch. gén.</th><th>Ch. comm.</th><th>Total/an</th><th>/trimestre</th></tr></thead>
+        <tbody>
+          ${S.lots.map(l=>{
+            const cg=tmg>0?CG*l.mg/tmg:0, cc=tmc>0?CC*l.mc/tmc:0, tot2=cg+cc;
+            return `<tr>
+              <td><span class="ml">${l.num}</span></td>
+              <td style="font-size:12px">${l.prop}</td>
+              <td>${eur(cg)}</td><td>${eur(cc)}</td>
+              <td style="font-weight:700;color:var(--gold)">${eur(tot2)}</td>
+              <td>${eur(tot2/4)}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:var(--surface2);font-weight:700">
+            <td colspan="2">TOTAL</td>
+            <td>${eur(CG)}</td><td>${eur(CC)}</td>
+            <td style="color:var(--gold)">${eur(CG+CC)}</td>
+            <td>${eur((CG+CC)/4)}</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>`}`;
+}
+
+// ══════════════════════════════════════════
+//  TRÉSORERIE
+// ══════════════════════════════════════════
+function pgTreso(){
+  const r=S.treso.filter(t=>t.type==='recette'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
+  const d=S.treso.filter(t=>t.type==='dépense'&&t.stat==='payé').reduce((a,t)=>a+t.mont,0);
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddOp()">+ Opération</button></div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-label">Recettes</div><div class="kpi-value kv-g">${eur(r)}</div></div>
+      <div class="kpi"><div class="kpi-label">Dépenses</div><div class="kpi-value kv-r">${eur(d)}</div></div>
+    </div>
+    <div class="kpi" style="margin-bottom:12px"><div class="kpi-label">Solde</div><div class="kpi-value ${(r-d)>=0?'kv-g':'kv-r'}">${eur(r-d)}</div></div>
+    ${!S.treso.length?`<div class="alert ai">Aucune opération enregistrée.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Date</th><th>Libellé</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+        <tbody>${[...S.treso].reverse().map(t=>`<tr>
+          <td style="font-size:11px">${t.date}</td>
+          <td style="font-size:12px">${t.lib}</td>
+          <td style="font-weight:600;color:${t.type==='recette'?'var(--green)':'var(--red)'}">
+            ${t.type==='recette'?'+':'−'}${eur(t.mont)}</td>
+          <td><span class="badge ${t.stat==='payé'?'bg':'bo'}">${t.stat}</span></td>
+          <td><div class="act-btns">
+            ${t.stat==='en attente'?`<button class="btn sb sm" onclick="reglerOp(${t.id})">✅</button>`:''}
+            <button class="btn eb sm" onclick="mEditOp(${t.id})">✏️</button>
+            <button class="btn db sm" onclick="delOp(${t.id})">🗑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddOp(){
+  openM(`<div class="mt">Nouvelle opération</div>
+    <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${today()}"></div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" placeholder="Description"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option value="recette">Recette</option><option value="dépense">Dépense</option></select></div>
+      <div class="fg"><label class="fl">Montant (€)</label><input class="fc" id="m-mont" type="number" step="0.01" placeholder="0.00"></div>
+    </div>
+    <div class="fg"><label class="fl">Statut</label><select class="fc" id="m-stat"><option value="payé">Payé / Encaissé</option><option value="en attente">En attente</option></select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveOp()">Enregistrer</button></div>`);
+}
+function saveOp(){
+  S.treso.push({id:uid(),date:v('m-date'),lib:v('m-lib'),type:v('m-type'),mont:+v('m-mont'),stat:v('m-stat')});
+  saveData();closeM();toast('✅ Opération enregistrée');go('treso');
+}
+function mEditOp(id){
+  const t=S.treso.find(x=>x.id===id);
+  openM(`<div class="mt">Modifier l'opération</div>
+    <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${t.date}"></div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" value="${esc(t.lib)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type">
+        <option value="recette"${t.type==='recette'?' selected':''}>Recette</option>
+        <option value="dépense"${t.type==='dépense'?' selected':''}>Dépense</option>
+      </select></div>
+      <div class="fg"><label class="fl">Montant (€)</label><input class="fc" id="m-mont" type="number" step="0.01" value="${t.mont}"></div>
+    </div>
+    <div class="fg"><label class="fl">Statut</label><select class="fc" id="m-stat">
+      <option value="payé"${t.stat==='payé'?' selected':''}>Payé / Encaissé</option>
+      <option value="en attente"${t.stat==='en attente'?' selected':''}>En attente</option>
+    </select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateOp(${id})">Enregistrer</button></div>`);
+}
+function updateOp(id){
+  const t=S.treso.find(x=>x.id===id);
+  Object.assign(t,{date:v('m-date'),lib:v('m-lib'),type:v('m-type'),mont:+v('m-mont'),stat:v('m-stat')});
+  saveData();closeM();toast('✅ Opération modifiée');go('treso');
+}
+function reglerOp(id){
+  S.treso.find(t=>t.id===id).stat='payé';
+  saveData();toast('✅ Réglé');go(CUR);
+}
+function delOp(id){
+  if(confirm('Supprimer cette opération ?')){S.treso=S.treso.filter(t=>t.id!==id);saveData();toast('🗑 Supprimé');go('treso');}
+}
+
+// ══════════════════════════════════════════
+//  APPELS DE FONDS
+// ══════════════════════════════════════════
+function pgAppels(){
+  const tmg=sumMG(),tmc=sumMC(),CG=cmg(),CC=cmc();
+  const trim=Math.ceil((new Date().getMonth()+1)/3);
+  document.getElementById('main').innerHTML=`
+    <div class="alert ai">📨 Appels de fonds trimestriels — T${trim} ${new Date().getFullYear()}</div>
+    ${!S.lots.length?`<div class="alert ai">Aucun lot enregistré.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Lot</th><th>Propriétaire</th><th>Email</th><th>Appel T${trim}</th><th></th></tr></thead>
+        <tbody>${S.lots.map(l=>{
+          const cg=tmg>0?CG*l.mg/tmg:0, cc=tmc>0?CC*l.mc/tmc:0;
+          const t=(cg+cc)/4;
+          return `<tr>
+            <td><span class="ml">${l.num}</span></td>
+            <td style="font-size:12px">${l.prop}</td>
+            <td style="font-size:11px;color:var(--text3)">${l.email}</td>
+            <td style="font-weight:700;color:var(--gold)">${eur(t)}</td>
+            <td><button class="btn sb sm" onclick="printAppel('${esc(l.num)}','${esc(l.prop)}',${t.toFixed(2)})">🖨️</button></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+// ══════════════════════════════════════════
+//  IMPAYÉS
+// ══════════════════════════════════════════
+function pgImpayes(){
+  const list=S.treso.filter(t=>t.type==='recette'&&t.stat==='en attente');
+  document.getElementById('main').innerHTML=`
+    <div class="kpi" style="margin-bottom:12px">
+      <div class="kpi-label">Total impayés</div>
+      <div class="kpi-value ${list.length?'kv-r':'kv-g'}">${eur(impayes())}</div>
+    </div>
+    ${!list.length?`<div class="alert as">✅ Aucun impayé en cours</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Date</th><th>Libellé</th><th>Montant</th><th>Actions</th></tr></thead>
+        <tbody>${list.map(t=>`<tr>
+          <td style="font-size:11px">${t.date}</td>
+          <td style="font-size:12px">${t.lib}</td>
+          <td style="color:var(--red);font-weight:700">${eur(t.mont)}</td>
+          <td class="row">
+            <button class="btn sb sm" onclick="toast('📧 Relance simulée')">📧 Relance</button>
+            <button class="btn pb sm" onclick="reglerOp(${t.id})">✅ Régler</button>
+            <button class="btn db sm" onclick="delOp(${t.id})">🗑</button>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+// ══════════════════════════════════════════
+//  ASSEMBLÉES GÉNÉRALES
+// ══════════════════════════════════════════
+function pgAG(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mNewAG()">+ Organiser AG</button></div>
+    ${!S.ags.length?`<div class="alert ai">Aucune AG planifiée. Cliquez "+ Organiser AG".</div>`:''}
+    ${S.ags.map(ag=>`<div class="card">
+      <div class="bet">
+        <div>
+          <div style="font-size:15px;font-weight:700">${ag.type} — ${ag.date.split('-').reverse().join('/')}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">🕐 ${ag.heure} · 📍 ${ag.lieu}</div>
+        </div>
+        <span class="badge ${ag.stat==='planifiée'?'bo':ag.stat==='tenue'?'bg':'bb'}">${ag.stat}</span>
+      </div>
+      <div class="sep"></div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:6px">Ordre du jour</div>
+      ${ag.odj.map((o,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--text3);margin-right:8px">${i+1}.</span>${o}</div>`).join('')}
+      <div class="row" style="margin-top:10px">
+        ${ag.stat==='planifiée'?`<button class="btn pb sm" onclick="mConduireAG(${ag.id})">🗳️ Conduire</button>`:''}
+        ${ag.stat==='tenue'?`<button class="btn gb sm" onclick="genPV(${ag.id})">📄 ${ag.pv?'Voir PV':'Générer PV'}</button>`:''}
+        <button class="btn eb sm" onclick="mEditAG(${ag.id})">✏️ Modifier</button>
+        <button class="btn db sm" onclick="delAG(${ag.id})">🗑</button>
+      </div>
+    </div>`).join('')}`;
+}
+
+function mNewAG(){
+  openM(`<div class="mt">Organiser une AG</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option>AGO</option><option>AGE</option></select></div>
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date"></div>
+      <div class="fg"><label class="fl">Heure</label><input class="fc" id="m-heure" value="18h00"></div>
+      <div class="fg"><label class="fl">Lieu</label><input class="fc" id="m-lieu" placeholder="Salle, adresse..."></div>
+    </div>
+    <div class="fg"><label class="fl">Ordre du jour (1 point par ligne)</label>
+      <textarea class="fc" id="m-odj" rows="4" placeholder="Approbation des comptes\nBudget\nQuestions diverses"></textarea></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveAG()">Planifier</button></div>`);
+}
+function saveAG(){
+  S.ags.push({id:uid(),type:v('m-type'),date:v('m-date'),heure:v('m-heure'),lieu:v('m-lieu'),stat:'planifiée',odj:v('m-odj').split('\n').filter(Boolean),quorum:false,pv:false});
+  saveData();closeM();toast('✅ AG planifiée');go('ag');
+}
+function mEditAG(id){
+  const ag=S.ags.find(x=>x.id===id);
+  openM(`<div class="mt">Modifier l'AG</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type">
+        <option${ag.type==='AGO'?' selected':''}>AGO</option><option${ag.type==='AGE'?' selected':''}>AGE</option>
+      </select></div>
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${ag.date}"></div>
+      <div class="fg"><label class="fl">Heure</label><input class="fc" id="m-heure" value="${esc(ag.heure)}"></div>
+      <div class="fg"><label class="fl">Lieu</label><input class="fc" id="m-lieu" value="${esc(ag.lieu)}"></div>
+    </div>
+    <div class="fg"><label class="fl">Ordre du jour</label>
+      <textarea class="fc" id="m-odj" rows="4">${ag.odj.join('\n')}</textarea></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateAG(${id})">Enregistrer</button></div>`);
+}
+function updateAG(id){
+  const ag=S.ags.find(x=>x.id===id);
+  Object.assign(ag,{type:v('m-type'),date:v('m-date'),heure:v('m-heure'),lieu:v('m-lieu'),odj:v('m-odj').split('\n').filter(Boolean)});
+  saveData();closeM();toast('✅ AG modifiée');go('ag');
+}
+function delAG(id){
+  if(confirm('Supprimer cette AG ?')){
+    S.ags=S.ags.filter(x=>x.id!==id);
+    S.votes=S.votes.filter(v=>v.agId!==id);
+    saveData();toast('🗑 AG supprimée');go('ag');
+  }
+}
+function mConduireAG(id){
+  openM(`<div class="mt">Conduire l'AG</div>
+    <div class="fg"><label class="fl">Quorum atteint ?</label><select class="fc" id="m-qr"><option value="true">Oui ✅</option><option value="false">Non ❌</option></select></div>
+    <div class="fg"><label class="fl">Millièmes représentés</label><input class="fc" id="m-milli" type="number" placeholder="Ex: 6500"></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn gb" onclick="valAG(${id})">Valider la tenue</button></div>`);
+}
+function valAG(id){
+  const ag=S.ags.find(a=>a.id===id);
+  ag.stat='tenue';ag.quorum=v('m-qr')==='true';
+  saveData();closeM();toast('✅ AG enregistrée');go('ag');
+}
+
+// ══════════════════════════════════════════
+//  PV & VOTES
+// ══════════════════════════════════════════
+function pgPV(){
+  const list=S.ags.filter(a=>a.stat==='tenue');
+  document.getElementById('main').innerHTML=
+    (!list.length?`<div class="alert ai">Aucune AG tenue pour l'instant.</div>`:'')+
+    list.map(ag=>`<div class="card">
+      <div class="bet">
+        <div>
+          <div style="font-weight:700">${ag.type} du ${ag.date.split('-').reverse().join('/')}</div>
+          <div style="font-size:12px;color:var(--text3)">${ag.lieu}</div>
+        </div>
+        <button class="btn gb sm" onclick="genPV(${ag.id})">📄 PV</button>
+      </div>
+    </div>`).join('');
+}
+
+function pgVotes(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddVote()">+ Vote</button></div>
+    ${!S.votes.length?`<div class="alert ai">Aucun vote enregistré.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>AG</th><th>Résolution</th><th>Art.</th><th>Pour</th><th>Contre</th><th>Abst.</th><th>Résultat</th><th></th></tr></thead>
+        <tbody>${S.votes.map(vt=>{
+          const ag=S.ags.find(a=>a.id===vt.agId);
+          return `<tr>
+            <td style="font-size:11px">${ag?ag.date.split('-').reverse().join('/'):vt.agId}</td>
+            <td style="font-size:12px">${vt.res}</td>
+            <td><span class="badge bpp">${vt.art}</span></td>
+            <td style="color:var(--green)">${vt.pour.toLocaleString('fr')}</td>
+            <td style="color:var(--red)">${vt.contre.toLocaleString('fr')}</td>
+            <td style="color:var(--text3)">${vt.abst.toLocaleString('fr')}</td>
+            <td><span class="badge ${vt.res2==='adopté'?'bg':'br'}">${vt.res2}</span></td>
+            <td><div class="act-btns">
+              <button class="btn eb sm" onclick="mEditVote(${vt.id})">✏️</button>
+              <button class="btn db sm" onclick="delVote(${vt.id})">🗑</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddVote(){
+  const tenues=S.ags.filter(a=>a.stat==='tenue');
+  openM(`<div class="mt">Ajouter un vote</div>
+    <div class="fg"><label class="fl">AG</label><select class="fc" id="m-agid">
+      ${tenues.map(a=>`<option value="${a.id}">${a.type} du ${a.date.split('-').reverse().join('/')}</option>`).join('')}
+    </select></div>
+    <div class="fg"><label class="fl">Résolution</label><input class="fc" id="m-res" placeholder="Approbation des comptes..."></div>
+    <div class="fg"><label class="fl">Article</label><input class="fc" id="m-art" placeholder="Art. 24"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Pour (millièmes)</label><input class="fc" id="m-pour" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Contre</label><input class="fc" id="m-contre" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Abstention</label><input class="fc" id="m-abst" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Résultat</label><select class="fc" id="m-res2"><option>adopté</option><option>rejeté</option></select></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveVote()">Enregistrer</button></div>`);
+}
+function saveVote(){
+  S.votes.push({id:uid(),agId:+v('m-agid'),res:v('m-res'),art:v('m-art'),pour:+v('m-pour'),contre:+v('m-contre'),abst:+v('m-abst'),res2:v('m-res2')});
+  saveData();closeM();toast('✅ Vote enregistré');go('votes');
+}
+function mEditVote(id){
+  const vt=S.votes.find(x=>x.id===id);
+  const tenues=S.ags.filter(a=>a.stat==='tenue');
+  openM(`<div class="mt">Modifier le vote</div>
+    <div class="fg"><label class="fl">AG</label><select class="fc" id="m-agid">
+      ${tenues.map(a=>`<option value="${a.id}"${a.id===vt.agId?' selected':''}>${a.type} du ${a.date.split('-').reverse().join('/')}</option>`).join('')}
+    </select></div>
+    <div class="fg"><label class="fl">Résolution</label><input class="fc" id="m-res" value="${esc(vt.res)}"></div>
+    <div class="fg"><label class="fl">Article</label><input class="fc" id="m-art" value="${esc(vt.art)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Pour</label><input class="fc" id="m-pour" type="number" value="${vt.pour}"></div>
+      <div class="fg"><label class="fl">Contre</label><input class="fc" id="m-contre" type="number" value="${vt.contre}"></div>
+      <div class="fg"><label class="fl">Abstention</label><input class="fc" id="m-abst" type="number" value="${vt.abst}"></div>
+      <div class="fg"><label class="fl">Résultat</label><select class="fc" id="m-res2">
+        <option${vt.res2==='adopté'?' selected':''}>adopté</option>
+        <option${vt.res2==='rejeté'?' selected':''}>rejeté</option>
+      </select></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateVote(${id})">Enregistrer</button></div>`);
+}
+function updateVote(id){
+  const vt=S.votes.find(x=>x.id===id);
+  Object.assign(vt,{agId:+v('m-agid'),res:v('m-res'),art:v('m-art'),pour:+v('m-pour'),contre:+v('m-contre'),abst:+v('m-abst'),res2:v('m-res2')});
+  saveData();closeM();toast('✅ Vote modifié');go('votes');
+}
+function delVote(id){
+  if(confirm('Supprimer ce vote ?')){S.votes=S.votes.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('votes');}
+}
+
+// ══════════════════════════════════════════
+//  TRAVAUX
+// ══════════════════════════════════════════
+function pgTravaux(){
+  const ss=['devis reçu','validé','en cours','terminé'];
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddTravaux()">+ Chantier</button></div>
+    ${S.travaux.some(t=>t.urgence)?`<div class="alert ad">⚡ Travaux urgents en cours</div>`:''}
+    ${!S.travaux.length?`<div class="alert ai">Aucun chantier enregistré.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Libellé</th><th>Fournisseur</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+        <tbody>${S.travaux.map(t=>`<tr>
+          <td style="font-weight:500">${t.lib}${t.urgence?' ⚡':''}</td>
+          <td style="font-size:12px">${t.fourn}</td>
+          <td style="color:var(--gold)">${eur(t.mont)}</td>
+          <td><span class="badge ${t.stat==='terminé'?'bg':t.stat==='en cours'?'bb':'bo'}">${t.stat}</span></td>
+          <td><div class="act-btns">
+            ${t.stat!=='terminé'?`<button class="btn sb sm" onclick="nextTravaux(${t.id})">→</button>`:''}
+            <button class="btn eb sm" onclick="mEditTravaux(${t.id})">✏️</button>
+            <button class="btn db sm" onclick="delTravaux(${t.id})">🗑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddTravaux(){
+  openM(`<div class="mt">Ajouter un chantier</div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" placeholder="Description des travaux"></div>
+    <div class="fg"><label class="fl">Fournisseur / Entreprise</label><input class="fc" id="m-fourn" placeholder="Nom de l'entreprise"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Montant devis (€)</label><input class="fc" id="m-mont" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Urgence</label><select class="fc" id="m-urg"><option value="false">Non</option><option value="true">Oui ⚡</option></select></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveTravaux()">Enregistrer</button></div>`);
+}
+function saveTravaux(){
+  S.travaux.push({id:uid(),lib:v('m-lib'),stat:'devis reçu',mont:+v('m-mont'),fourn:v('m-fourn'),urgence:v('m-urg')==='true'});
+  saveData();closeM();toast('✅ Chantier ajouté');go('travaux');
+}
+function mEditTravaux(id){
+  const t=S.travaux.find(x=>x.id===id);
+  const ss=['devis reçu','validé','en cours','terminé'];
+  openM(`<div class="mt">Modifier le chantier</div>
+    <div class="fg"><label class="fl">Libellé</label><input class="fc" id="m-lib" value="${esc(t.lib)}"></div>
+    <div class="fg"><label class="fl">Fournisseur</label><input class="fc" id="m-fourn" value="${esc(t.fourn)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Montant (€)</label><input class="fc" id="m-mont" type="number" value="${t.mont}"></div>
+      <div class="fg"><label class="fl">Statut</label><select class="fc" id="m-stat">
+        ${ss.map(s=>`<option${s===t.stat?' selected':''}>${s}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="fg"><label class="fl">Urgence</label><select class="fc" id="m-urg">
+      <option value="false"${!t.urgence?' selected':''}>Non</option>
+      <option value="true"${t.urgence?' selected':''}>Oui ⚡</option>
+    </select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateTravaux(${id})">Enregistrer</button></div>`);
+}
+function updateTravaux(id){
+  const t=S.travaux.find(x=>x.id===id);
+  Object.assign(t,{lib:v('m-lib'),fourn:v('m-fourn'),mont:+v('m-mont'),stat:v('m-stat'),urgence:v('m-urg')==='true'});
+  saveData();closeM();toast('✅ Chantier modifié');go('travaux');
+}
+function nextTravaux(id){
+  const t=S.travaux.find(x=>x.id===id);
+  const ss=['devis reçu','validé','en cours','terminé'];
+  const idx=ss.indexOf(t.stat);
+  if(idx<ss.length-1){t.stat=ss[idx+1];saveData();toast('✅ Statut mis à jour');go('travaux');}
+}
+function delTravaux(id){
+  if(confirm('Supprimer ce chantier ?')){S.travaux=S.travaux.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('travaux');}
+}
+
+// ══════════════════════════════════════════
+//  DOCUMENTS
+// ══════════════════════════════════════════
+function pgDocs(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddDoc()">+ Document</button></div>
+    ${!S.docs.length?`<div class="alert ai">Aucun document enregistré. Ajoutez vos documents de référence (règlement, diagnostics, PV…).</div>`:`
+    <div class="card">
+      <div class="card-title">Espace documentaire</div>
+      ${S.docs.map(d=>`<div class="bet" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px">📄 ${d.nom}</div>
+          <div style="font-size:10px;color:var(--text3)">${d.date} · <span class="badge bb">${d.type}</span></div>
+          ${d.notes?`<div style="font-size:11px;color:var(--text3);margin-top:2px;font-style:italic">${d.notes}</div>`:''}
+        </div>
+        <div class="act-btns">
+          <button class="btn eb sm" onclick="mEditDoc(${d.id})">✏️</button>
+          <button class="btn db sm" onclick="delDoc(${d.id})">🗑</button>
+        </div>
+      </div>`).join('')}
+    </div>`}`;
+}
+
+function mAddDoc(){
+  openM(`<div class="mt">Ajouter un document</div>
+    <div class="fg"><label class="fl">Nom du document</label><input class="fc" id="m-nom" placeholder="Ex: Règlement de copropriété"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option>Légal</option><option>Diagnostic</option><option>Comptabilité</option><option>AG</option><option>Gestion</option><option>Contrat</option><option>Autre</option></select></div>
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${today()}"></div>
+    </div>
+    <div class="fg"><label class="fl">Notes / URL</label><input class="fc" id="m-notes" placeholder="Lien, remarques..."></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveDoc()">Enregistrer</button></div>`);
+}
+function saveDoc(){
+  S.docs.push({id:uid(),nom:v('m-nom'),type:v('m-type'),date:v('m-date'),notes:v('m-notes')});
+  saveData();closeM();toast('✅ Document ajouté');go('docs');
+}
+function mEditDoc(id){
+  const d=S.docs.find(x=>x.id===id);
+  const types=['Légal','Diagnostic','Comptabilité','AG','Gestion','Contrat','Autre'];
+  openM(`<div class="mt">Modifier le document</div>
+    <div class="fg"><label class="fl">Nom</label><input class="fc" id="m-nom" value="${esc(d.nom)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type">
+        ${types.map(t=>`<option${t===d.type?' selected':''}>${t}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${d.date}"></div>
+    </div>
+    <div class="fg"><label class="fl">Notes / URL</label><input class="fc" id="m-notes" value="${esc(d.notes||'')}"></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateDoc(${id})">Enregistrer</button></div>`);
+}
+function updateDoc(id){
+  const d=S.docs.find(x=>x.id===id);
+  Object.assign(d,{nom:v('m-nom'),type:v('m-type'),date:v('m-date'),notes:v('m-notes')});
+  saveData();closeM();toast('✅ Document modifié');go('docs');
+}
+function delDoc(id){
+  if(confirm('Supprimer ce document ?')){S.docs=S.docs.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('docs');}
+}
+
+// ══════════════════════════════════════════
+//  CONTRATS
+// ══════════════════════════════════════════
+function pgContrats(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddContrat()">+ Contrat</button></div>
+    ${S.contrats.filter(c=>c.alerte).map(c=>`<div class="alert aw">⚠️ "${c.type}" à renouveler avant le ${c.fin}</div>`).join('')}
+    ${!S.contrats.length?`<div class="alert ai">Aucun contrat enregistré.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Type</th><th>Fournisseur</th><th>Début</th><th>Fin</th><th>Montant/an</th><th>Statut</th><th></th></tr></thead>
+        <tbody>${S.contrats.map(c=>`<tr>
+          <td style="font-weight:500">${c.type}</td>
+          <td style="font-size:12px">${c.fourn}</td>
+          <td style="font-size:11px">${c.deb}</td>
+          <td style="font-size:11px">${c.fin}</td>
+          <td style="color:var(--gold)">${eur(c.mont)}</td>
+          <td><span class="badge ${c.stat==='actif'?'bg':'bo'}">${c.stat}</span></td>
+          <td><div class="act-btns">
+            <button class="btn eb sm" onclick="mEditContrat(${c.id})">✏️</button>
+            <button class="btn db sm" onclick="delContrat(${c.id})">🗑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddContrat(){
+  openM(`<div class="mt">Ajouter un contrat</div>
+    <div class="fg"><label class="fl">Type de contrat</label><input class="fc" id="m-type" placeholder="Ex: Entretien ascenseur"></div>
+    <div class="fg"><label class="fl">Fournisseur</label><input class="fc" id="m-fourn" placeholder="Nom de l'entreprise"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Début</label><input class="fc" id="m-deb" type="date"></div>
+      <div class="fg"><label class="fl">Fin</label><input class="fc" id="m-fin" type="date"></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Montant annuel (€)</label><input class="fc" id="m-mont" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Alerte renouvellement</label><select class="fc" id="m-alerte"><option value="false">Non</option><option value="true">Oui ⚠️</option></select></div>
+    </div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveContrat()">Enregistrer</button></div>`);
+}
+function saveContrat(){
+  const fin=v('m-fin');
+  S.contrats.push({id:uid(),type:v('m-type'),fourn:v('m-fourn'),deb:v('m-deb'),fin:fin,mont:+v('m-mont'),stat:'actif',alerte:v('m-alerte')==='true'});
+  saveData();closeM();toast('✅ Contrat enregistré');go('contrats');
+}
+function mEditContrat(id){
+  const c=S.contrats.find(x=>x.id===id);
+  openM(`<div class="mt">Modifier le contrat</div>
+    <div class="fg"><label class="fl">Type de contrat</label><input class="fc" id="m-type" value="${esc(c.type)}"></div>
+    <div class="fg"><label class="fl">Fournisseur</label><input class="fc" id="m-fourn" value="${esc(c.fourn)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Début</label><input class="fc" id="m-deb" type="date" value="${c.deb}"></div>
+      <div class="fg"><label class="fl">Fin</label><input class="fc" id="m-fin" type="date" value="${c.fin}"></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Montant annuel (€)</label><input class="fc" id="m-mont" type="number" value="${c.mont}"></div>
+      <div class="fg"><label class="fl">Statut</label><select class="fc" id="m-stat">
+        <option${c.stat==='actif'?' selected':''}>actif</option>
+        <option${c.stat==='à renouveler'?' selected':''}>à renouveler</option>
+        <option${c.stat==='résilié'?' selected':''}>résilié</option>
+      </select></div>
+    </div>
+    <div class="fg"><label class="fl">Alerte renouvellement</label><select class="fc" id="m-alerte">
+      <option value="false"${!c.alerte?' selected':''}>Non</option>
+      <option value="true"${c.alerte?' selected':''}>Oui ⚠️</option>
+    </select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateContrat(${id})">Enregistrer</button></div>`);
+}
+function updateContrat(id){
+  const c=S.contrats.find(x=>x.id===id);
+  Object.assign(c,{type:v('m-type'),fourn:v('m-fourn'),deb:v('m-deb'),fin:v('m-fin'),mont:+v('m-mont'),stat:v('m-stat'),alerte:v('m-alerte')==='true'});
+  saveData();closeM();toast('✅ Contrat modifié');go('contrats');
+}
+function delContrat(id){
+  if(confirm('Supprimer ce contrat ?')){S.contrats=S.contrats.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('contrats');}
+}
+
+// ══════════════════════════════════════════
+//  INCIDENTS
+// ══════════════════════════════════════════
+function pgIncidents(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddIncident()">+ Incident</button></div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-label">Ouverts</div><div class="kpi-value kv-r">${S.incidents.filter(i=>i.stat==='ouvert').length}</div></div>
+      <div class="kpi"><div class="kpi-label">En cours</div><div class="kpi-value kv-o">${S.incidents.filter(i=>i.stat==='en cours').length}</div></div>
+    </div>
+    ${!S.incidents.length?`<div class="alert as">✅ Aucun incident enregistré.</div>`:`
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Date</th><th>Lot</th><th>Type</th><th>Description</th><th>Prio.</th><th>Statut</th><th></th></tr></thead>
+        <tbody>${S.incidents.map(i=>`<tr>
+          <td style="font-size:11px">${i.date}</td>
+          <td><span class="ml">${i.lot}</span></td>
+          <td>${i.type}</td>
+          <td style="font-size:12px">${i.desc}</td>
+          <td><span class="badge ${i.prio==='haute'?'br':i.prio==='moyenne'?'bo':'bb'}">${i.prio}</span></td>
+          <td><span class="badge ${i.stat==='résolu'?'bg':i.stat==='en cours'?'bo':'br'}">${i.stat}</span></td>
+          <td><div class="act-btns">
+            ${i.stat!=='résolu'?`<button class="btn sb sm" onclick="nextInc(${i.id})">→</button>`:''}
+            <button class="btn eb sm" onclick="mEditInc(${i.id})">✏️</button>
+            <button class="btn db sm" onclick="delInc(${i.id})">🗑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`}`;
+}
+
+function mAddIncident(){
+  openM(`<div class="mt">Signaler un incident</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${today()}"></div>
+      <div class="fg"><label class="fl">Lot / Zone</label><select class="fc" id="m-lot">
+        ${S.lots.map(l=>`<option value="${l.num}">${l.num}</option>`).join('')}
+        <option value="Parties communes">Parties communes</option>
+        <option value="Toiture">Toiture</option>
+        <option value="Autre">Autre</option>
+      </select></div>
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type"><option>Fuite</option><option>Éclairage</option><option>Voisinage</option><option>Équipement</option><option>Sécurité</option><option>Autre</option></select></div>
+      <div class="fg"><label class="fl">Priorité</label><select class="fc" id="m-prio"><option value="faible">Faible</option><option value="moyenne">Moyenne</option><option value="haute">Haute</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Description</label><textarea class="fc" id="m-desc" rows="3" placeholder="Décrivez l'incident..."></textarea></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveInc()">Signaler</button></div>`);
+}
+function saveInc(){
+  S.incidents.push({id:uid(),date:v('m-date'),lot:v('m-lot'),type:v('m-type'),desc:v('m-desc'),stat:'ouvert',prio:v('m-prio')});
+  saveData();closeM();toast('✅ Incident signalé');go('incidents');
+}
+function mEditInc(id){
+  const i=S.incidents.find(x=>x.id===id);
+  const ss=['ouvert','en cours','résolu'];
+  const prios=['faible','moyenne','haute'];
+  const types=['Fuite','Éclairage','Voisinage','Équipement','Sécurité','Autre'];
+  openM(`<div class="mt">Modifier l'incident</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Date</label><input class="fc" id="m-date" type="date" value="${i.date}"></div>
+      <div class="fg"><label class="fl">Lot / Zone</label><input class="fc" id="m-lot" value="${esc(i.lot)}"></div>
+      <div class="fg"><label class="fl">Type</label><select class="fc" id="m-type">
+        ${types.map(t=>`<option${t===i.type?' selected':''}>${t}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label class="fl">Priorité</label><select class="fc" id="m-prio">
+        ${prios.map(p=>`<option value="${p}"${p===i.prio?' selected':''}>${p.charAt(0).toUpperCase()+p.slice(1)}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="fg"><label class="fl">Description</label><textarea class="fc" id="m-desc" rows="3">${i.desc}</textarea></div>
+    <div class="fg"><label class="fl">Statut</label><select class="fc" id="m-stat">
+      ${ss.map(s=>`<option${s===i.stat?' selected':''}>${s}</option>`).join('')}
+    </select></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateInc(${id})">Enregistrer</button></div>`);
+}
+function updateInc(id){
+  const i=S.incidents.find(x=>x.id===id);
+  Object.assign(i,{date:v('m-date'),lot:v('m-lot'),type:v('m-type'),desc:v('m-desc'),prio:v('m-prio'),stat:v('m-stat')});
+  saveData();closeM();toast('✅ Incident modifié');go('incidents');
+}
+function nextInc(id){
+  const i=S.incidents.find(x=>x.id===id);
+  const ss=['ouvert','en cours','résolu'];
+  const idx=ss.indexOf(i.stat);
+  if(idx<ss.length-1){i.stat=ss[idx+1];saveData();toast('✅ Statut mis à jour');go('incidents');}
+}
+function delInc(id){
+  if(confirm('Supprimer cet incident ?')){S.incidents=S.incidents.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('incidents');}
+}
+
+// ══════════════════════════════════════════
+//  FOURNISSEURS
+// ══════════════════════════════════════════
+function pgFourns(){
+  document.getElementById('main').innerHTML=`
+    <div class="sa"><button class="btn pb" onclick="mAddFourn()">+ Fournisseur</button></div>
+    ${!S.fourns.length?`<div class="alert ai">Aucun fournisseur enregistré.</div>`:''}
+    ${S.fourns.map(f=>`<div class="card">
+      <div class="bet">
+        <div><div style="font-weight:700;font-size:14px">${f.nom}</div>
+          <span class="badge bb" style="margin-top:4px">${f.act}</span></div>
+        <div class="act-btns">
+          <button class="btn eb sm" onclick="mEditFourn(${f.id})">✏️</button>
+          <button class="btn db sm" onclick="delFourn(${f.id})">🗑</button>
+        </div>
+      </div>
+      <div class="sep"></div>
+      ${f.contact?`<div style="font-size:12px;color:var(--text2)">👤 ${f.contact}</div>`:''}
+      ${f.tel?`<div style="font-size:12px;color:var(--text2);margin-top:3px">📞 ${f.tel}</div>`:''}
+      ${f.email?`<div style="font-size:12px;color:var(--text2);margin-top:2px">📧 ${f.email}</div>`:''}
+      ${f.notes?`<div style="font-size:11px;color:var(--text3);margin-top:5px;font-style:italic">${f.notes}</div>`:''}
+    </div>`).join('')}`;
+}
+
+function mAddFourn(){
+  openM(`<div class="mt">Ajouter un fournisseur</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Nom</label><input class="fc" id="m-nom" placeholder="Nom de l'entreprise"></div>
+      <div class="fg"><label class="fl">Activité</label><input class="fc" id="m-act" placeholder="Nettoyage, Électricité..."></div>
+      <div class="fg"><label class="fl">Contact</label><input class="fc" id="m-cont" placeholder="Prénom Nom"></div>
+      <div class="fg"><label class="fl">Téléphone</label><input class="fc" id="m-tel" placeholder="04 XX XX XX XX"></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input class="fc" id="m-email" type="email" placeholder="email@entreprise.fr"></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="m-notes" rows="2" placeholder="Infos utiles, tarifs..."></textarea></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="saveFourn()">Enregistrer</button></div>`);
+}
+function saveFourn(){
+  S.fourns.push({id:uid(),nom:v('m-nom'),act:v('m-act'),contact:v('m-cont'),tel:v('m-tel'),email:v('m-email'),notes:v('m-notes')});
+  saveData();closeM();toast('✅ Fournisseur ajouté');go('fourns');
+}
+function mEditFourn(id){
+  const f=S.fourns.find(x=>x.id===id);
+  openM(`<div class="mt">Modifier le fournisseur</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Nom</label><input class="fc" id="m-nom" value="${esc(f.nom)}"></div>
+      <div class="fg"><label class="fl">Activité</label><input class="fc" id="m-act" value="${esc(f.act)}"></div>
+      <div class="fg"><label class="fl">Contact</label><input class="fc" id="m-cont" value="${esc(f.contact||'')}"></div>
+      <div class="fg"><label class="fl">Téléphone</label><input class="fc" id="m-tel" value="${esc(f.tel||'')}"></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input class="fc" id="m-email" type="email" value="${esc(f.email||'')}"></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="m-notes" rows="2">${f.notes||''}</textarea></div>
+    <div class="mf"><button class="btn sb" onclick="closeM()">Annuler</button><button class="btn pb" onclick="updateFourn(${id})">Enregistrer</button></div>`);
+}
+function updateFourn(id){
+  const f=S.fourns.find(x=>x.id===id);
+  Object.assign(f,{nom:v('m-nom'),act:v('m-act'),contact:v('m-cont'),tel:v('m-tel'),email:v('m-email'),notes:v('m-notes')});
+  saveData();closeM();toast('✅ Fournisseur modifié');go('fourns');
+}
+function delFourn(id){
+  if(confirm('Supprimer ce fournisseur ?')){S.fourns=S.fourns.filter(x=>x.id!==id);saveData();toast('🗑 Supprimé');go('fourns');}
+}
+
+// ══════════════════════════════════════════
+//  PARAMÈTRES IMMEUBLE
+// ══════════════════════════════════════════
+function pgImmeuble(){
+  document.getElementById('main').innerHTML=`
+    <div class="card">
+      <div class="card-title">Paramètres de la copropriété</div>
+      <div class="fg"><label class="fl">Nom de la résidence</label><input class="fc" id="cfg-nom" value="${esc(S.imm.nom)}"></div>
+      <div class="fg"><label class="fl">Adresse</label><input class="fc" id="cfg-adr" value="${esc(S.imm.adr)}"></div>
+      <div class="fg"><label class="fl">SIRET</label><input class="fc" id="cfg-siret" value="${esc(S.imm.siret)}"></div>
+      <div class="fg"><label class="fl">Banque</label><input class="fc" id="cfg-banque" value="${esc(S.imm.banque)}"></div>
+      <div class="fg"><label class="fl">IBAN</label><input class="fc" id="cfg-iban" value="${esc(S.imm.iban)}"></div>
+      <div class="g2">
+        <div class="fg"><label class="fl">Total millièmes</label><input class="fc" id="cfg-milli" type="number" value="${S.imm.milli}"></div>
+        <div class="fg"><label class="fl">Année exercice</label><input class="fc" id="cfg-annee" type="number" value="${S.imm.annee}"></div>
+      </div>
+      <button class="btn pb" onclick="saveImm()">💾 Enregistrer</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Sauvegarde des données</div>
+      <div class="alert ai" style="margin-bottom:10px">💡 Les données sont sauvegardées automatiquement dans votre navigateur. Exportez régulièrement un fichier JSON de sauvegarde.</div>
+      <div class="row">
+        <button class="btn gb sm" onclick="exportData()">💾 Exporter JSON</button>
+        <button class="btn sb sm" onclick="importData()">📂 Importer JSON</button>
+        <button class="btn db sm" onclick="resetData()">🗑 Réinitialiser tout</button>
+      </div>
+    </div>`;
+}
+function saveImm(){
+  S.imm.nom=v('cfg-nom');S.imm.adr=v('cfg-adr');S.imm.siret=v('cfg-siret');
+  S.imm.banque=v('cfg-banque');S.imm.iban=v('cfg-iban');
+  S.imm.milli=+v('cfg-milli');S.imm.annee=+v('cfg-annee');
+  saveData();toast('✅ Paramètres enregistrés');
+  document.getElementById('topbar-logo').textContent='SyndicPro';
+}
+
+// ══════════════════════════════════════════
+//  IMPRESSION PV
+// ══════════════════════════════════════════
+function genPV(id){
+  const ag=S.ags.find(a=>a.id===id);
+  ag.pv=true;saveData();
+  const vts=S.votes.filter(vt=>vt.agId===id);
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>PV AG</title>
+  <style>body{font-family:Georgia,serif;max-width:760px;margin:40px auto;font-size:14px;line-height:1.7;color:#222;}
+  h1{text-align:center;font-size:19px;border-bottom:2px solid #222;padding-bottom:8px;}
+  h2{font-size:15px;margin-top:22px;border-left:3px solid #666;padding-left:8px;}
+  .info{background:#f5f5f5;padding:12px;border-radius:4px;margin:14px 0;display:flex;gap:24px;flex-wrap:wrap;}
+  table{width:100%;border-collapse:collapse;margin:10px 0;}
+  th,td{border:1px solid #bbb;padding:7px 10px;text-align:left;}th{background:#eee;}
+  .signs{display:flex;gap:40px;margin-top:60px;}.sign{flex:1;}
+  .sline{border-bottom:1px solid #333;height:38px;margin-top:8px;}
+  @media print{body{margin:20px;}}</style></head><body>
+  <h1>PROCÈS-VERBAL — ${ag.type}</h1>
+  <p style="text-align:center;color:#555">${S.imm.nom} &bull; ${S.imm.adr}</p>
+  <div class="info">
+    <div><strong>Date :</strong> ${ag.date.split('-').reverse().join('/')}</div>
+    <div><strong>Heure :</strong> ${ag.heure}</div>
+    <div><strong>Lieu :</strong> ${ag.lieu}</div>
+    <div><strong>Quorum :</strong> ${ag.quorum?'Atteint':'Non atteint'}</div>
+  </div>
+  <h2>1. Ordre du jour</h2>
+  <ol>${ag.odj.map(o=>`<li>${o}</li>`).join('')}</ol>
+  <h2>2. Résolutions votées</h2>
+  ${vts.length?`<table><thead><tr><th>Résolution</th><th>Article</th><th>Pour</th><th>Contre</th><th>Abstention</th><th>Résultat</th></tr></thead><tbody>
+  ${vts.map(vt=>`<tr><td>${vt.res}</td><td>${vt.art}</td><td>${vt.pour.toLocaleString('fr')}</td><td>${vt.contre.toLocaleString('fr')}</td><td>${vt.abst.toLocaleString('fr')}</td><td><strong>${vt.res2.toUpperCase()}</strong></td></tr>`).join('')}
+  </tbody></table>`:'<p><em>Aucune résolution enregistrée.</em></p>'}
+  <h2>3. Clôture de séance</h2>
+  <p>L'ordre du jour étant épuisé, la séance est levée.</p>
+  <div class="signs">
+    <div class="sign"><strong>Président de séance</strong><div class="sline"></div></div>
+    <div class="sign"><strong>Secrétaire</strong><div class="sline"></div></div>
+    <div class="sign"><strong>Scrutateur</strong><div class="sline"></div></div>
+  </div>
+  <p style="margin-top:40px;font-size:10px;color:#999">Généré par SyndicPro &bull; ${new Date().toLocaleDateString('fr-FR')}</p>
+  <script>window.print();<\/script></body></html>`);
+  w.document.close();
+}
+
+// ══════════════════════════════════════════
+//  IMPRESSION APPEL DE FONDS
+// ══════════════════════════════════════════
+function printAppel(lot,prop,mont){
+  const trim=Math.ceil((new Date().getMonth()+1)/3),an=new Date().getFullYear();
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Appel fonds</title>
+  <style>body{font-family:Arial,sans-serif;max-width:660px;margin:40px auto;font-size:13px;color:#222;}
+  .hdr{display:flex;justify-content:space-between;margin-bottom:20px;}
+  .box{background:#f5f5f5;padding:11px;border-radius:4px;margin:10px 0;}
+  .montant{font-size:26px;font-weight:bold;color:#1a3a6e;text-align:center;padding:18px;border:2px solid #1a3a6e;border-radius:8px;margin:18px 0;}
+  @media print{body{margin:20px;}}</style></head><body>
+  <div class="hdr">
+    <div><strong>${S.imm.nom}</strong><br>${S.imm.adr}<br>${S.imm.siret?'SIRET: '+S.imm.siret:''}</div>
+    <div style="text-align:right"><strong>APPEL DE FONDS</strong><br>T${trim} ${an}<br>Lot: ${lot}</div>
+  </div>
+  <p>À l'attention de : <strong>${prop}</strong></p>
+  <div class="box">Objet : Appel de provisions sur charges &mdash; ${trim}e trimestre ${an}</div>
+  <div class="montant">${eur(+mont)}</div>
+  ${S.imm.iban?`<div class="box"><strong>Virement bancaire :</strong><br>Banque : ${S.imm.banque}<br>IBAN : ${S.imm.iban}<br>Référence : APPEL-${lot}-T${trim}${an}</div>`:''}
+  <p style="font-size:10px;color:#999">Émis le ${new Date().toLocaleDateString('fr-FR')} &mdash; SyndicPro</p>
+  <script>window.print();<\/script></body></html>`);
+  w.document.close();
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  EXPOSITION GLOBALE (requis car type="module")
+// ══════════════════════════════════════════
+window.go = go;
+window.toggleDr = toggleDr;
+window.closeDr = closeDr;
+window.closeM = closeM;
+window.bgClose = bgClose;
+window.toast = toast;
+window.saveData = saveData;
+window.resetData = resetData;
+window.exportData = exportData;
+window.importData = importData;
+
+// Lots / Copros
+window.openAddLot = openAddLot;
+window.saveNewLot = saveNewLot;
+window.editLot = editLot;
+window.updateLot = updateLot;
+window.delLot = delLot;
+
+// Budget / Postes
+window.openAddPoste = openAddPoste;
+window.savePoste = savePoste;
+window.editPoste = editPoste;
+window.updatePoste = updatePoste;
+window.delPoste = delPoste;
+
+// Trésorerie
+window.openAddTreso = openAddTreso;
+window.saveTreso = saveTreso;
+window.editTreso = editTreso;
+window.updateTreso = updateTreso;
+window.delTreso = delTreso;
+
+// AG / Votes
+window.openAddAG = openAddAG;
+window.saveAG = saveAG;
+window.editAG = editAG;
+window.updateAG = updateAG;
+window.delAG = delAG;
+window.openAddVote = openAddVote;
+window.saveVote = saveVote;
+window.delVote = delVote;
+window.genPV = genPV;
+
+// Incidents
+window.openAddIncident = openAddIncident;
+window.saveIncident = saveIncident;
+window.editIncident = editIncident;
+window.updateIncident = updateIncident;
+window.delIncident = delIncident;
+
+// Travaux
+window.openAddTravaux = openAddTravaux;
+window.saveTravaux = saveTravaux;
+window.editTravaux = editTravaux;
+window.updateTravaux = updateTravaux;
+window.delTravaux = delTravaux;
+
+// Contrats
+window.openAddContrat = openAddContrat;
+window.saveContrat = saveContrat;
+window.editContrat = editContrat;
+window.updateContrat = updateContrat;
+window.delContrat = delContrat;
+
+// Fournisseurs
+window.openAddFourn = openAddFourn;
+window.saveFourn = saveFourn;
+window.editFourn = editFourn;
+window.updateFourn = updateFourn;
+window.delFourn = delFourn;
+
+// Docs
+window.openAddDoc = openAddDoc;
+window.saveDoc = saveDoc;
+window.delDoc = delDoc;
+
+// Appels / Impression
+window.printAppel = printAppel;
+window.saveImm = saveImm;
+
+
+buildNav();
+loadData().then(data => {
+  Object.assign(S, data);
+  go('home');
+}).catch(() => {
+  toast('⚠️ Firebase indisponible. Données par défaut.');
+  go('home');
+});
+</script>
+</body>
+</html>
