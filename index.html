@@ -408,7 +408,11 @@ function pgLots(){
           <td><span class="ml">${l.num}</span></td>
           <td><span class="badge ${l.type==='Appartement'?'bb':l.type==='Parking'?'bpp':'bo'}">${l.type}</span></td>
           <td>${l.surf}m²</td><td>${etage(l.etage)}</td>
-          <td style="color:var(--gold)">${l.milli?.gen || 0}</td><td>${l.milli?.ch || 0}</td><td>${l.milli?.as || 0}</td><td>${l.milli?.ps || 0}</td><td>${l.milli?.pa || 0}</td>
+          <td style="color:var(--gold)">${l.milli?.gen || 0}</td>
+          <td>${l.milli?.ch || 0}</td>
+          <td>${l.milli?.as || 0}</td>
+          <td>${l.milli?.ps || 0}</td>
+          <td>${l.milli?.pa || 0}</td>
           <td style="font-size:12px">${l.prop}</td>
           <td><div class="act-btns">
             <button class="btn eb sm" onclick="mEditLot(${l.id})" title="Modifier">✏️</button>
