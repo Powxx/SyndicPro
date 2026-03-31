@@ -1382,87 +1382,74 @@ window.saveData = saveData;
 window.resetData = resetData;
 window.exportData = exportData;
 window.importData = importData;
+window.saveImm = saveImm;
+window.printAppel = printAppel;
+window.genPV = genPV;
 
-// Lots / Copros
-window.openAddLot = openAddLot;
-window.saveNewLot = saveNewLot;
-window.editLot = editLot;
+window.openAddLot = mAddLot;
+window.saveLot = saveLot;
+window.mEditLot = mEditLot;
 window.updateLot = updateLot;
 window.delLot = delLot;
 
-// Budget / Postes
-window.openAddPoste = openAddPoste;
+window.openAddPoste = mAddPoste;
 window.savePoste = savePoste;
-window.editPoste = editPoste;
+window.mEditPoste = mEditPoste;
 window.updatePoste = updatePoste;
 window.delPoste = delPoste;
 
-// Trésorerie
-window.openAddTreso = openAddTreso;
-window.saveTreso = saveTreso;
-window.editTreso = editTreso;
-window.updateTreso = updateTreso;
-window.delTreso = delTreso;
+window.openAddTreso = mAddOp;
+window.saveOp = saveOp;
+window.mEditOp = mEditOp;
+window.updateOp = updateOp;
+window.reglerOp = reglerOp;
+window.delOp = delOp;
 
-// AG / Votes
-window.openAddAG = openAddAG;
+window.openAddAG = mNewAG;
 window.saveAG = saveAG;
-window.editAG = editAG;
+window.mEditAG = mEditAG;
 window.updateAG = updateAG;
 window.delAG = delAG;
-window.openAddVote = openAddVote;
+window.mConduireAG = mConduireAG;
+window.valAG = valAG;
+
+window.openAddVote = mAddVote;
 window.saveVote = saveVote;
+window.mEditVote = mEditVote;
+window.updateVote = updateVote;
 window.delVote = delVote;
-window.genPV = genPV;
 
-// Incidents
-window.openAddIncident = openAddIncident;
-window.saveIncident = saveIncident;
-window.editIncident = editIncident;
-window.updateIncident = updateIncident;
-window.delIncident = delIncident;
-
-// Travaux
-window.openAddTravaux = openAddTravaux;
+window.openAddTravaux = mAddTravaux;
 window.saveTravaux = saveTravaux;
-window.editTravaux = editTravaux;
+window.mEditTravaux = mEditTravaux;
 window.updateTravaux = updateTravaux;
+window.nextTravaux = nextTravaux;
 window.delTravaux = delTravaux;
 
-// Contrats
-window.openAddContrat = openAddContrat;
+window.openAddDoc = mAddDoc;
+window.saveDoc = saveDoc;
+window.mEditDoc = mEditDoc;
+window.updateDoc = updateDoc;
+window.delDoc = delDoc;
+
+window.openAddContrat = mAddContrat;
 window.saveContrat = saveContrat;
-window.editContrat = editContrat;
+window.mEditContrat = mEditContrat;
 window.updateContrat = updateContrat;
 window.delContrat = delContrat;
 
-// Fournisseurs
-window.openAddFourn = openAddFourn;
+window.openAddIncident = mAddIncident;
+window.saveInc = saveInc;
+window.mEditInc = mEditInc;
+window.updateInc = updateInc;
+window.nextInc = nextInc;
+window.delInc = delInc;
+
+window.openAddFourn = mAddFourn;
 window.saveFourn = saveFourn;
-window.editFourn = editFourn;
+window.mEditFourn = mEditFourn;
 window.updateFourn = updateFourn;
 window.delFourn = delFourn;
-
-// Docs
-window.openAddDoc = openAddDoc;
-window.saveDoc = saveDoc;
-window.delDoc = delDoc;
-
-// Appels / Impression
-window.printAppel = printAppel;
-window.saveImm = saveImm;
-
-
-window.openAddLot = mAddLot;
-window.openAddPoste = mAddPoste;
-window.openAddTreso = mAddOp;
-window.openAddAG = mNewAG;
-window.openAddVote = mAddVote;
-window.openAddTravaux = mAddTravaux;
-window.openAddDoc = mAddDoc;
-window.openAddContrat = mAddContrat;
-window.openAddIncident = mAddIncident;
-window.openAddFourn = mAddFourn;
 
 buildNav();
 loadData().then(data => {
