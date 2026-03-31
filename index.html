@@ -746,7 +746,7 @@ function pgAppels(){
       <div class="tw"><table>
         <thead><tr><th>Lot</th><th>Propriétaire</th><th>Email</th><th>Appel T${trim}</th><th></th></tr></thead>
         <tbody>${S.lots.map(l=>{
-          const cg=tmg>0?CG*l.gen/tmg:0, cc=tmc>0?CC*l.ch/tmc:0,ca=tma>0?CA*l.as/tma:0,cpa=tmpa>0?CPA*l.pa/tmpa:0,cps=tmps>0?CPS*l.ps/tmps:0,
+          const cg=tmg>0?CG*l.gen/tmg:0, cc=tmc>0?CC*l.ch/tmc:0,ca=tma>0?CA*l.as/tma:0,cpa=tmpa>0?CPA*l.pa/tmpa:0,cps=tmps>0?CPS*l.ps/tmps:0
           const t=(cg+cc+ca+cps+cpa)/4;
           return `<tr>
             <td><span class="ml">${l.num}</span></td>
