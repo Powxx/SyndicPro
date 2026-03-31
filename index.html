@@ -179,6 +179,7 @@ const DEFAULTS = {
     annee:new Date().getFullYear()
   },
   lots:[],
+  cats:['Entretien','Équipements','Assurances','Administration','Eau','Travaux','Divers'],
   postes:[],
   treso:[],
   ags:[],
@@ -496,6 +497,7 @@ function pgBudget(){
   document.getElementById('main').innerHTML=`
     <div class="sa">
       <button class="btn pb" onclick="mAddPoste()">+ Poste</button>
+      <button class="btn po" onclick="mAddCat()">+ Catégorie</button>
       <button class="btn gb" onclick="window.print()">🖨️ Imprimer</button>
     </div>
     <div class="g2">
@@ -541,7 +543,7 @@ function savePoste(){
 }
 function mEditPoste(id){
   const p=S.postes.find(x=>x.id===id);
-  const cats=['Entretien','Équipements','Assurances','Administration','Eau','Travaux','Divers'];
+  const cats = S.cats;
   openM(`<div class="mt">Modifier le poste</div>
     <div class="fg"><label class="fl">Catégorie</label><select class="fc" id="m-cat">
       ${cats.map(c=>`<option${c===p.cat?' selected':''}>${c}</option>`).join('')}
@@ -562,7 +564,35 @@ function updatePoste(id){
 function delPoste(id){
   if(confirm('Supprimer ce poste ?')){S.postes=S.postes.filter(p=>p.id!==id);saveData();toast('🗑 Supprimé');go('budget');}
 }
+function mAddCat(){
+  openM(`
+    <div class="mt">Ajouter une catégorie</div>
+    <div class="fg">
+      <label class="fl">Nom</label>
+      <input class="fc" id="m-catname">
+    </div>
+    <div class="mf">
+      <button class="btn sb" onclick="closeM()">Annuler</button>
+      <button class="btn pb" onclick="saveCat()">Ajouter</button>
+    </div>
+  `);
+}
 
+function saveCat(){
+  const name=v('m-catname');
+  if(!name) return;
+  S.cats.push(name);
+  saveData();
+  closeM();
+  toast('✅ Catégorie ajoutée');
+}
+
+function delCat(name){
+  if(!confirm("Supprimer la catégorie ?")) return;
+  S.cats=S.cats.filter(c=>c!==name);
+  saveData();
+  toast('🗑 Catégorie supprimée');
+}
 // ══════════════════════════════════════════
 //  RÉPARTITION DES CHARGES
 // ══════════════════════════════════════════
